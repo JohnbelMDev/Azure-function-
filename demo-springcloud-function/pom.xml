@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>azure</groupId>
+  <artifactId>maven</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  
+ 
+    <packaging>jar</packaging>
+
+    <name>Helloworld Spring Function on Azure</name>
+
+    <parent>
+
+        <groupId>org.springframework.boot</groupId>
+
+        <artifactId>spring-boot-starter-parent</artifactId>
+
+        <version>2.4.2</version>
+
+        <relativePath/> <!-- lookup parent from repository -->
+
+    </parent>
+
+    <properties>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <azure.functions.java.library.version>1.4.0</azure.functions.java.library.version>
+
+        <azure.functions.maven.plugin.version>1.3.1</azure.functions.maven.plugin.version>
+
+        <functionResourceGroup>sample-resource-group</functionResourceGroup>
+
+        <functionAppName>helloworld-spring-function</functionAppName>
+
+        <functionAppRegion>westeurope</functionAppRegion>
+
+        <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
+
+        <start-class>com.demo.HelloworldApplication</start-class>
+
+        <spring.boot.wrapper.version>1.0.26.RELEASE</spring.boot.wrapper.version>
+
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+
+            <groupId>org.springframework.cloud</groupId>
+
+            <artifactId>spring-cloud-function-adapter-azure</artifactId>
+
+        </dependency>
+
+        <dependency>
+
+            <groupId>org.springframework.cloud</groupId>
+
+            <artifactId>spring-cloud-starter-function-webflux</artifactId>
+
+            <scope>provided</scope>
+
+        </dependency>
+
+        <!-- Test -->
+
+        <dependency>
+
+            <groupId>org.springframework.boot</groupId>
+
+            <artifactId>spring-boot-starter-test</artifactId>
+
+            <scope>test</scope>
+
+        </dependency>
+
+        <dependency>
+
+            <groupId>org.junit.jupiter</groupId>
+
+            <artifactId>junit-jupiter-api</artifactId>
+
+            <version>5.7.0</version>
+
+            <scope>test</scope>
+
+        </dependency>
+
+        <dependency>
+
+            <groupId>io.gatling.highcharts</groupId>
+
+            <artifactId>gatling-charts-highcharts</artifactId>
+
+            <version>3.5.0</version>
+
+            <scope>test</scope>
+
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+
+        <dependencies>
+
+            <dependency>
+
+                <groupId>org.springframework.cloud</groupId>
+
+                <artifactId>spring-cloud-function-dependencies</artifactId>
+
+                <version>3.1.0</version>
+
+                <type>pom</type>
+
+                <scope>import</scope>
+
+            </dependency>
+
+            <dependency>
+
+                <groupId>com.microsoft.azure.functions</groupId>
+
+                <artifactId>azure-functions-java-library</artifactId>
+
+                <version>${azure.functions.java.library.version}</version>
+
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+<build>
+
+    <plugins>
+<plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.19.1</version>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+
+        <plugin>
+
+            <groupId>com.microsoft.azure</groupId>
+			<version>1.14.3</version>
+            <artifactId>azure-functions-maven-plugin</artifactId>
+
+            <configuration>
+
+                <appName>${functionAppName}</appName>
+
+                <resourceGroup>${functionResourceGroup}</resourceGroup>
+
+                <appServicePlanName>azure-functions-app-service-plan</appServicePlanName>
+
+                <region>${functionAppRegion}</region>
+
+                <runtime>
+
+                    <os>windows</os>
+
+                </runtime>
+
+                <appSettings>
+                    <property>
+
+                        <name>FUNCTIONS_EXTENSION_VERSION</name>
+
+                        <value>~3</value>
+
+                    </property>
+
+                </appSettings>
+
+            </configuration>
+
+            <executions>
+
+                <execution>
+
+                    <id>package-functions</id>
+
+                    <goals>
+
+                        <goal>package</goal>
+
+                    </goals>
+
+                </execution>
+
+            </executions>
+
+        </plugin>
+
+        <plugin>
+
+            <groupId>org.apache.maven.plugins</groupId>
+
+            <artifactId>maven-resources-plugin</artifactId>
+
+            <executions>
+
+                <execution>
+
+                    <id>copy-resources</id>
+
+                    <phase>package</phase>
+
+                    <goals>
+
+                        <goal>copy-resources</goal>
+
+                    </goals>
+
+                    <configuration>
+
+                        <overwrite>true</overwrite>
+
+                        <outputDirectory>${stagingDirectory}</outputDirectory>
+
+                        <resources>
+
+                            <resource>
+
+                                <directory>${project.basedir}</directory>
+
+                                <includes>
+
+                                    <include>host.json</include>
+
+                                    <include>local.settings.json</include>
+
+                                </includes>
+
+                            </resource>
+
+                        </resources>
+
+                    </configuration>
+
+                </execution>
+
+            </executions>
+
+        </plugin>
+
+        <plugin>
+
+            <groupId>org.apache.maven.plugins</groupId>
+
+            <artifactId>maven-dependency-plugin</artifactId>
+
+            <executions>
+
+                <execution>
+
+                    <id>copy-dependencies</id>
+
+                    <phase>prepare-package</phase>
+
+                    <goals>
+
+                        <goal>copy-dependencies</goal>
+
+                    </goals>
+
+                    <configuration>
+
+                        <outputDirectory>${stagingDirectory}/lib</outputDirectory>
+
+                        <overWriteReleases>false</overWriteReleases>
+
+                        <overWriteSnapshots>false</overWriteSnapshots>
+
+                        <overWriteIfNewer>true</overWriteIfNewer>
+
+                        <includeScope>runtime</includeScope>
+
+                        <excludeArtifactIds>azure-functions-java-library</excludeArtifactIds>
+
+                    </configuration>
+
+                </execution>
+
+            </executions>
+
+        </plugin>
+
+        <plugin>
+
+            <artifactId>maven-clean-plugin</artifactId>
+
+            <version>3.1.0</version>
+
+            <configuration>
+
+                <filesets>
+
+                    <fileset>
+
+                        <directory>obj</directory>
+
+                    </fileset>
+
+                </filesets>
+
+            </configuration>
+
+        </plugin>
+
+    </plugins>
+
+</build>
+
+
+</project>
